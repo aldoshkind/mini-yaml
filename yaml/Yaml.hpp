@@ -133,6 +133,27 @@ namespace Yaml
             }
         };
 
+		template<>
+		struct StringConverter<int>
+		{
+			static int Get(const std::string & data)
+			{
+				int res = 0;
+				sscanf(data.c_str(), "%i", &res);
+				return res;
+			}
+
+			static int Get(const std::string & data, const int &defaultValue)
+			{
+				int res = 0;
+				if(sscanf(data.c_str(), "%i", &res) != 1)
+				{
+					return defaultValue;
+				}
+				return res;
+			}
+		};
+
     }
 
 
@@ -538,6 +559,8 @@ namespace Yaml
         */
         Node & operator []  (const size_t index);
         Node & operator [] (const std::string & key);
+
+		Node &at(const std::string &key);
 
         /**
         * @breif Erase item.

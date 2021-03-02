@@ -134,7 +134,7 @@ namespace Yaml
         virtual Node * PushBack() = 0;
         virtual void Erase(const size_t index) = 0;
         virtual void Erase(const std::string & key) = 0;
-
+		virtual bool contains(const std::string &key) {return false;}
     };
 
     class SequenceImp : public TypeImp
@@ -252,7 +252,7 @@ namespace Yaml
             m_Sequence.erase(index);
         }
 
-        virtual void Erase(const std::string & key)
+		virtual void Erase(const std::string & /*key*/)
         {
         }
 
@@ -278,7 +278,7 @@ namespace Yaml
             return g_EmptyString;
         }
 
-        virtual bool SetData(const std::string & data)
+		virtual bool SetData(const std::string & /*data*/)
         {
             return false;
         }
@@ -288,7 +288,7 @@ namespace Yaml
             return m_Map.size();
         }
 
-        virtual Node * GetNode(const size_t index)
+		virtual Node * GetNode(const size_t /*index*/)
         {
             return nullptr;
         }
@@ -304,6 +304,11 @@ namespace Yaml
             }
             return it->second;
         }
+
+		bool contains(const std::string & key)
+		{
+			return (m_Map.count(key) > 0);
+		}
 
         virtual Node * Insert(const size_t index)
         {
@@ -1050,6 +1055,17 @@ namespace Yaml
         NODE_IMP->InitMap();
         return *TYPE_IMP->GetNode(key);
     }
+
+	Node &Node::at(const std::string & key)
+	{
+		NODE_IMP->InitMap();
+		if(TYPE_IMP->contains(key) == false)
+		{
+			throw std::invalid_argument("Key not found: \"" + key + "\"");
+		}
+		auto *nd = TYPE_IMP->GetNode(key);
+		return *nd;
+	}
 
     void Node::Erase(const size_t index)
     {
